@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+    %}
+    <h1 align="center">Users</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">UserId</th>
+          <th scope="col">FullName</th>
+          <th scope="col">Email</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Category</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <th scope="row">{{user.id}}</th>
+          <td>{{user.name}}</td>
+          <td>{{user.username}}</td>
+          <td>{{user.phone}}</td>
+          <td>{{'Faculty' if user.categoryid == 1 else 'Student' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endblock %}
+

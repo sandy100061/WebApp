@@ -18,4 +18,11 @@
         <button type="submit" class="btn btn-primary">Add Note</button>
       </div>
     </form>
+    {% if user.role == 1 %}
+    <p>Admin</p>
+    {% else %}
+    <p>User</p>
+    {% endif %}
     {% endblock %}
+
+

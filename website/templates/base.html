@@ -31,6 +31,12 @@
         <div class="navbar-nav">
           {% if user.is_authenticated %}
           <a class="nav-item nav-link" id="home" href="/">Home</a>
+            {% if user.role == 1 %}
+              <a class="nav-item nav-link" id="logout" href="/users">Users</a>
+              <a class="nav-item nav-link" id="logout" href="/routes">Routes</a>
+            {% else %}
+              <a class="nav-item nav-link" id="logout" href="/logout">User</a>
+            {% endif %}  
           <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
           {% else %}
           <a class="nav-item nav-link" id="login" href="/login">Login</a>

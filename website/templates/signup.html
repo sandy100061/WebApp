@@ -5,6 +5,16 @@
 <form method="POST">
     <h3 align="center">Sign Up</h3>
     <div class="form-group">
+      <label for="name">Full Name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="name"
+        name="name"
+        placeholder="Enter FullName"
+      />
+    </div>
+    <div class="form-group">
       <label for="email">Email Address</label>
       <input
         type="email"
@@ -15,13 +25,13 @@
       />
     </div>
     <div class="form-group">
-      <label for="firstName">First Name</label>
+      <label for="phone">Phone</label>
       <input
         type="text"
         class="form-control"
-        id="firstName"
-        name="firstName"
-        placeholder="Enter first name"
+        id="phone"
+        name="phone"
+        placeholder="Enter PhoneNo"
       />
     </div>
     <div class="form-group">
@@ -43,6 +53,15 @@
         name="password2"
         placeholder="Confirm password"
       />
+    </div>
+    <div class="form-group">
+      <label for="category">Category</label>
+      <select id="category" name="category" class="form-select" aria-label="Default select example">
+        <option selected value="0">Select Category</option>        
+        {% for item in categories %}
+          <option value="{{item.id}}">{{item.name}}</option>
+        {% endfor %}
+      </select>
     </div>
     <br />
     <button type="submit" class="btn btn-primary">Submit</button>

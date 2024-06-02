@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, jsonify
 from flask_login import login_required, current_user
-from .models import Note
+from .models import Note, User
 from . import db
 import json
 
@@ -30,3 +30,16 @@ def delete_note():
             db.session.commit()
 
     return jsonify({})
+
+
+@views.route('/users', methods=['GET'])
+@login_required
+def users():       
+    users = User.query.filter(User.role != 1).all()
+    return render_template('users.html', user=current_user, users = users)
+
+@views.route('/routes', methods=['GET', 'POST'])
+@login_required
+def routes():       
+    users = User.query.filter(User.role != 1).all()
+    return render_template('routes.html', user=current_user, users = users)
