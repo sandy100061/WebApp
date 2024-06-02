@@ -33,10 +33,11 @@
           <a class="nav-item nav-link" id="home" href="/">Home</a>
             {% if user.role == 1 %}
               <a class="nav-item nav-link" id="logout" href="/users">Users</a>
-              <a class="nav-item nav-link" id="logout" href="/routes">Routes</a>
             {% else %}
-              <a class="nav-item nav-link" id="logout" href="/logout">User</a>
+
             {% endif %}  
+          <a class="nav-item nav-link" id="logout" href="/routes">Routes</a>
+          <a class="nav-item nav-link" id="logout" href="/bookpass">Book Bus Pass</a>  
           <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
           {% else %}
           <a class="nav-item nav-link" id="login" href="/login">Login</a>
@@ -82,7 +83,7 @@
     ></script>
 
 {% block javascript %}
-    <script type="text/javascript">
+<script type="text/javascript">
       function deleteNote(noteId) {
       fetch("/delete-note", {
             method: "POST",
@@ -91,6 +92,26 @@
           window.location.href = "/";
         });
       }
+      
+  function editBusRoute(busid) {
+    var cityname = document.getElementById("cityname"+busid).value;
+    var price = document.getElementById("price"+busid).value;
+    fetch("/editbusroute", {
+          method: "POST",
+          body: JSON.stringify({ busid: busid, cityname: cityname, price: price }),
+        }).then((_res) => {
+        window.location.href = "/routes";
+      });
+    }
+
+  function deleteBusRoute(busid) {
+    fetch("/deleteBusRoute", {
+          method: "POST",
+          body: JSON.stringify({ busid: busid }),
+        }).then((_res) => {
+        window.location.href = "/routes";
+      });
+    }
 </script>
 {% endblock %}
   </body>
