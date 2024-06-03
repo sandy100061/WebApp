@@ -6,9 +6,6 @@ from . import db
 import json
 from datetime import datetime
 from sqlalchemy import desc
-from reportlab.pdfgen import canvas
-from flask import send_from_directory
-from os import path
 
 views = Blueprint('views', __name__)
 
