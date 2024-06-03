@@ -1,6 +1,406 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
     %}
-    <h1 align="center">Book Bus Pass</h1><br>
-    
-    
+    <form method="POST" style="width: 60%;">
+      {% if busPass.id != None %}
+      <h3 align="center">Renew Bus Pass</h3>
+      <div class="form-group">
+        <input type="hidden" id="passid" name="passid" value="{{busPass.id}}">
+        <label for="name">Full Name</label>
+        <input disabled
+          type="text"
+          class="form-control"
+          id="name"
+          name="name"
+          placeholder="Enter FullName"
+          value="{{busPass.name}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input
+          type="email" disabled
+          class="form-control"
+          id="email"
+          name="email"
+          placeholder="Enter email"
+          value="{{busPass.email}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input
+          type="text" disabled
+          class="form-control"
+          id="phone"
+          name="phone"
+          placeholder="Enter PhoneNo"
+          value="{{busPass.mobile}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="fromDate">From</label>
+        <input
+          type="date" disabled
+          class="form-control"
+          id="fromDate"
+          name="fromDate"
+          value="{{busPass.fromdate}}"
+          placeholder="Select From Date"
+        />
+      </div>
+      <div class="form-group">
+        <label for="todate">Previous Valid Till</label>
+        <input
+          type="date" disabled
+          class="form-control"
+          id="validity"
+          name="validity"
+          value="{{busPass.validity}}"
+          placeholder="Select To Date"
+        />
+      </div>
+      <div class="form-group">
+        <label for="destinationText">Destination</label>
+        <input
+          type="text" disabled
+          class="form-control"
+          id="destinationText"
+          name="destinationText"
+          value="{{busPass.destination}}"
+        />
+        <input
+          type="hidden" disabled
+          class="form-control"
+          id="destination"
+          name="destination"
+          value="{{busPass.busrouteid}}"
+        />
+        <select hidden id="priceSelect" name="priceSelect">   
+          {% for route in routes %}
+            <option value="{{route.id}}">{{route.price}}</option>
+          {% endfor %}
+        </select>
+        <input type="hidden" id="categoryType" value="{{user.categoryid}}">
+      </div>
+      <div class="form-group">
+        <label for="renewvalidity">Valid Till</label>
+        <input
+          type="date"
+          class="form-control"
+          id="renewvalidity"
+          name="renewvalidity"
+        />
+      <div class="form-group">
+        <label for="amount">Amount</label>
+        <span id="priceMsg"></span>
+        <input
+          type="hidden"
+          class="form-control"
+          id="amount"
+          name="amount"
+          value="{{busPass.amount}}"
+        />
+      <br />
+      <button type="submit" class="btn btn-primary">Renew</button>
+      {% else %}
+      <h3 align="center">Book Bus Pass</h3>
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="name"
+          name="name"
+          placeholder="Enter FullName"
+          value="{{user.name}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          name="email"
+          placeholder="Enter email"
+          value="{{user.username}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input
+          type="text"
+          class="form-control"
+          id="phone"
+          name="phone"
+          placeholder="Enter PhoneNo"
+          value="{{user.phone}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="fromDate">From</label>
+        <input
+          type="date"
+          class="form-control"
+          id="fromDate"
+          name="fromDate"
+          placeholder="Select From Date"
+        />
+      </div>
+      <div class="form-group">
+        <label for="todate">Valid Till</label>
+        <input
+          type="date"
+          class="form-control"
+          id="validity"
+          name="validity"
+          placeholder="Select To Date"
+        />
+      </div>
+      <div class="form-group">
+        <label for="destination">Destination</label>
+        <select id="destination" name="destination" class="form-select" aria-label="Default select example">
+          <option selected value="0">Select Destination</option>        
+          {% for route in routes %}
+            <option value="{{route.id}}">{{route.cityname}}</option>
+          {% endfor %}
+        </select>
+        <select hidden id="priceSelect" name="priceSelect">   
+          {% for route in routes %}
+            <option value="{{route.id}}">{{route.price}}</option>
+          {% endfor %}
+        </select>
+        <input type="hidden" id="categoryType" value="{{user.categoryid}}">
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount</label>
+        <span id="priceMsg"></span>
+        <input
+          type="hidden"
+          class="form-control"
+          id="amount"
+          name="amount"
+        />
+      <br />
+      <button type="submit" class="btn btn-primary">Book Pass</button>
+      {% endif %} 
+      
+    </form>
     {% endblock %}
+
+  {% block javascript %}
+  <script type="text/javascript">
+    let routeIds = [];
+    let routePrices = [];
+
+    $(document).ready(function() {
+        if($("#passid").val())
+        {
+            // alert($("#todate").val());
+            setToDateFromPreviousToDate();
+        }
+        disablePreviousDates();
+        disablePreviousDatesFromDate();
+        $("#priceSelect option").each(function()
+        {
+            var id = $(this).val();
+            var routeVal = $(this).text();
+            routeIds.push(id);
+            routePrices.push(routeVal);
+        });
+
+        $("#destination").on('change', (event) => {
+        calculateRouteFair(event.target.value, $("#validity").val());
+			// var id = event.target.value;
+            // var index = routeIds.indexOf(""+ id +"");
+            // var price = routePrices[index];
+            // $("#priceMsg").html('$' + price);
+            // $("#amount").val(price);
+            // $("#priceSelect option[value="+ id +"]").attr('selected', 'selected');             
+            // var amount = $( "#priceSelect option:selected" ).text();
+            // alert(''+amount);
+            // $("#priceMsg").html('$' + amount);
+            // $("#amount").val(amount);
+  		});
+
+        $("#validity").on('change', (event) => {
+          calculateRouteFair($("#destination").val(), event.target.value);
+          // var todaysDate = Date.now();
+          // var selectedDate = Date.parse(event.target.value);
+          // const diffTime = Math.abs(selectedDate - todaysDate);
+          // const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+          // var id = $("#destination").val();
+          // var index = routeIds.indexOf(""+ id +"");
+          // var price = routePrices[index];
+          // var amount = parseInt(price) * diffDays;
+          // $("#priceMsg").html('$' + amount);
+          // $("#amount").val(amount);
+        });
+        
+        $("#renewvalidity").on('change', (event) => {
+		    var fromDate = $("#validity").val();
+            var date = event.target.value;       
+            var id = $("#destination").val();
+            if(id === "0" || !date || !fromDate)
+                return;
+            var todaysDate = Date.parse(fromDate);
+            var selectedDate = Date.parse(date);
+            const diffTime = Math.abs(selectedDate - todaysDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            var index = routeIds.indexOf(""+ id +"");
+            var price = routePrices[index];
+            if(price === NaN || diffDays === NaN)
+            {
+                price = 0;
+                diffDays = 0;
+            }
+
+            var amount = parseInt(price) * (diffDays);
+            var categoryTypeId = $("#categoryType").val();
+            if(categoryTypeId === "2")
+            {
+                var discount = (amount * 10)/100;
+                amount = amount - discount;
+                $("#priceMsg").html('$' + amount + " (Including 10% Student discount)");
+                $("#amount").val(amount);
+            }
+            else
+            {
+                $("#priceMsg").html('$' + amount);
+                $("#amount").val(amount);
+            }
+  		});
+        
+        $("#fromDate").on('change', (event) => {
+          setToDate();
+        });
+    });
+
+    function disablePreviousDates()
+    {
+        var dtToday = new Date();
+        dtToday.setDate(dtToday.getDate() + 1);
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+        if(month < 10)
+            month = '0' + month.toString();
+        if(day < 10)
+            day = '0' + day.toString();
+        
+        var maxDate = year + '-' + month + '-' + day;
+
+        $('#validity').attr('min', maxDate);
+    }
+
+    function disablePreviousDatesFromDate()
+    {
+        var dtToday = new Date();
+        dtToday.setDate(dtToday.getDate() + 1);
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+        if(month < 10)
+            month = '0' + month.toString();
+        if(day < 10)
+            day = '0' + day.toString();
+        
+        var maxDate = year + '-' + month + '-' + day;
+
+        $('#fromDate').attr('min', maxDate);
+    }
+
+    function calculateRouteFair(id, date) {
+        var fromDate = $("#fromDate").val()
+        if(id === "0" || !date || !fromDate)
+            return;
+        var todaysDate = Date.parse(fromDate);
+        var selectedDate = Date.parse(date);
+        const diffTime = Math.abs(selectedDate - todaysDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        var id = $("#destination").val();
+        var index = routeIds.indexOf(""+ id +"");
+        var price = routePrices[index];
+        if(price === NaN || diffDays === NaN)
+        {
+            price = 0;
+            diffDays = 0;
+        }
+        var amount = parseInt(price) * (diffDays + 1);
+        var categoryTypeId = $("#categoryType").val();
+        if(categoryTypeId === "2")
+        {
+            var discount = (amount * 10)/100;
+            amount = amount - discount;
+            $("#priceMsg").html('$' + amount + " (Including 10% Student discount)");
+            $("#amount").val(amount);
+        }
+        else
+        {
+            $("#priceMsg").html('$' + amount);
+            $("#amount").val(amount);
+        }
+    }
+
+    // function calculateRouteFairCopy(id, date) {
+    //     var fromDate = $("#fromDate").val()
+    //     if(id === "0" || !date || !fromDate)
+    //         return;
+    //     var todaysDate = Date.now();
+    //     var selectedDate = Date.parse(date);
+    //     const diffTime = Math.abs(selectedDate - todaysDate);
+    //     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    //     var id = $("#destination").val();
+    //     var index = routeIds.indexOf(""+ id +"");
+    //     var price = routePrices[index];
+    //     if(price === NaN || diffDays === NaN)
+    //     {
+    //         price = 0;
+    //         diffDays = 0;
+    //     }
+    //     var amount = parseInt(price) * diffDays;
+    //     $("#priceMsg").html('$' + amount);
+    //     $("#amount").val(amount);
+    // }
+
+    function setToDate()
+    {
+        var fromDateStr = $("#fromDate").val();
+        var dtToday = new Date(fromDateStr);
+        //var dtToday = Date.parse(fromDateStr);
+        dtToday.setDate(dtToday.getDate() + 1);
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+        if(month < 10)
+            month = '0' + month.toString();
+        if(day < 10)
+            day = '0' + day.toString();
+        
+        var maxDate = year + '-' + month + '-' + day;
+        $('#validity').attr('min', maxDate);
+        $('#validity').val('');
+        $("#priceMsg").html('');
+        $("#amount").val(0);
+    }
+
+    function setToDateFromPreviousToDate()
+    {
+        var fromDateStr = $("#validity").val();
+        var dtToday = new Date(fromDateStr);        
+        //var dtToday = Date.parse(fromDateStr);
+        dtToday.setDate(dtToday.getDate() + 2);
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+        if(month < 10)
+            month = '0' + month.toString();
+        if(day < 10)
+            day = '0' + day.toString();
+        
+        var maxDate = year + '-' + month + '-' + day;
+        $('#renewvalidity').attr('min', maxDate);
+        $('#renewvalidity').val('');
+    }
+  </script>
+  {% endblock %}

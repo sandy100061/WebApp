@@ -39,7 +39,7 @@ def sign_up():
         
         if first_name == None or first_name == '':
             flash('FullName is required', category="error")
-        if phone == None or phone == '':
+        elif phone == None or phone == '':
             flash('Phone No is required', category="error")
         elif len(email) < 4:
             flash('Email must be greater than 4 characters', category="error")

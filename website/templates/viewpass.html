@@ -1,0 +1,113 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+    %}
+    <h1 align="center">View Passes</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Pass Id</th>
+          <th scope="col">FullName</th>
+          <th scope="col">Email</th>
+          <th scope="col">Mobile No</th>
+          <th scope="col">FromDate</th>
+          <th scope="col">ToDate</th>
+          <th scope="col">Destination</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for busPass in busPasses %}
+        <tr>
+          <th scope="row">{{busPass.id}}</th>
+          <td>{{busPass.name}}</td>
+          <td>{{busPass.email}}</td>
+          <td>{{busPass.mobile}}</td>
+          <td>{{busPass.fromdate.date()}}</td>
+          <td>{{busPass.validity.date()}}</td>
+          <td>{{busPass.destination}}</td>
+          <td>{{busPass.amount}}</td>
+          <td>
+            <div style="display: flex; gap:5%">
+              <button type="button" class="btn btn-primary" onClick="downloadPass('{{ busPass.id }}')">Download</button>
+              <button type="button" class="btn btn-primary" onClick="renewBusPass('{{ busPass.id }}')">Renew</button>
+            </div>
+            <div id="passDiv{{busPass.id}}" style="display: none;">
+              <h1>Bus Pass</h1>
+              <table border="2">
+                  <tr>
+                      <td><span style="font-weight: bold;">Id</span></td>
+                      <td>{{busPass.id}}</td>
+                  </tr>  
+                  <tr>
+                      <td><span style="font-weight: bold;">Full Name</span></td>
+                      <td>{{busPass.name}}</td>
+                  </tr> 
+                  <tr>
+                      <td><span style="font-weight: bold;">Email</span></td>
+                      <td>{{busPass.email}}</td>
+                  </tr> 
+                  <tr>
+                      <td><span style="font-weight: bold;">Mobile</span></td>
+                      <td>{{busPass.mobile}}</td>
+                  </tr>
+                  <tr>
+                      <td><span style="font-weight: bold;">From Date</span></td>
+                      <td><span id="fromDate">{{busPass.fromdate.date()}}</span></td>
+                  </tr> 
+                  <tr>
+                      <td><span style="font-weight: bold;">To Date</span></td>
+                      <td><span id="toDate">{{busPass.validity.date()}}</span></td>
+                  </tr>
+                  <tr>
+                      <td><span style="font-weight: bold;">Total Days</span></td>
+                      <td><span id="totalDays">{{totalDays[busPass.id]}}</span></td>
+                  </tr> 
+                  <tr>
+                      <td><span style="font-weight: bold;">City Name</span></td>
+                      <td>{{busPass.destination}}</td>
+                  </tr> 
+                  <tr>
+                      <td><span style="font-weight: bold;">Paid Amount</span></td>
+                      <td>{{busPass.amount}}</td>
+                  </tr> 
+              </table>
+          </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endblock %}
+
+  {% block javascript %}
+  <script type="text/javascript">
+    function renewBusPass(busPassId) {
+      window.location.href = "/bookpass?busPassId="+busPassId;
+    }
+
+    function downloadPass(busPassId) {
+      str=document.getElementById("passDiv" + busPassId).innerHTML + "<br>";
+      newwin=window.open('','printwin','left=100,top=100,width=400,height=400');
+      newwin.document.write('<HTML><HEAD> <link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\"/>');
+      newwin.document.write('<TITLE>Print Page</TITLE>\n');
+      newwin.document.write('<script>\n');
+      newwin.document.write('function chkstate(){\n');
+      newwin.document.write('if(document.readyState=="complete"){\n');
+      newwin.document.write('window.close()\n');
+      newwin.document.write('}\n');
+      newwin.document.write('else{\n');
+      newwin.document.write('setTimeout("chkstate()",2000)\n');
+      newwin.document.write('}\n');
+      newwin.document.write('}\n');
+      newwin.document.write('function print_win(){\n');
+      newwin.document.write('window.print();\n');
+      newwin.document.write('chkstate();\n');
+      newwin.document.write('}\n');
+      newwin.document.write('<\/script>\n');
+      newwin.document.write('</HEAD>\n');
+      newwin.document.write('<BODY onload="print_win()">\n');
+      newwin.document.write(str);
+      newwin.document.close();
+    }
+  </script>
+  {% endblock %}

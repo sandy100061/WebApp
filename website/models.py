@@ -33,7 +33,7 @@ class Buspass(db.Model):
     destination = db.Column(db.String(150))
     userid = db.Column(db.Integer, db.ForeignKey('user.id'))
     busrouteid = db.Column(db.Integer, db.ForeignKey('busroute.id'))
-    amount = db.Column(db.Integer)
+    amount = db.Column(db.Float)
 
 class Busroute(db.Model):
     id = db.Column(db.Integer, primary_key=True)
