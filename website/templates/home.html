@@ -1,28 +1,28 @@
-{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+{% extends "base.html" %} {% block title %}Home{% endblock %} 
+{% block head %}  <link rel="stylesheet" href="../main.css"/> {% endblock %}
+{% block content
     %}
-    <h1 align="center">Notes</h1>
-    <ul class="list-group list-group-flush" id="notes">
-      {% for note in user.notes %}
-      <li class="list-group-item">
-        {{ note.data }}
-        <button type="button" class="close" onClick="deleteNote('{{ note.id }}')">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </li>
-      {% endfor %}
-    </ul>
-    <form method="POST">
-      <textarea name="note" id="note" class="form-control"></textarea>
-      <br />
-      <div align="center">
-        <button type="submit" class="btn btn-primary">Add Note</button>
-      </div>
-    </form>
-    {% if user.role == 1 %}
-    <p>Admin</p>
-    {% else %}
-    <p>User</p>
-    {% endif %}
+    <div id="welcomeMsg" style="text-align: center;">
+      <h1>Welcome {{user.name}}
+        {% if user.role == 1 %}
+          <span>(Admin)</span>
+        {% endif %}
+  </h1>
+  </div>
+  <div id="bookNowButton" style="text-align: center;">
+      <input type="button" class="btn btn-primary" id="booknow" value="Book Now">
+  </div>
+<br>
+  <img style="width: 100%;" src="./static/bus.jpg" alt=""/>
     {% endblock %}
 
+    {% block javascript %}
+    <script>
+      $(document).ready(function() {
+          $("#booknow").on('click', function(e) {
+              window.location.href='/bookpass';
+          });
+      });
+  </script>
+  {% endblock %}
 

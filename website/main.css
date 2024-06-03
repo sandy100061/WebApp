@@ -1,0 +1,14 @@
+
+  #busImage {
+    width: 400px;
+    height: 400px;
+  }
+
+  #welcomeMsg {
+    text-align: center;
+  }
+
+  #navMsgDiv {
+    display: flex;
+    justify-content: space-between;
+  }
