@@ -14,6 +14,11 @@
       href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="../main.css"
+      crossorigin="anonymous"
+    />
     {% block head %}{% endblock %}
     <title>{% block title %}Home{% endblock %}</title>
   </>
@@ -30,15 +35,21 @@
       <div class="collapse navbar-collapse" id="navbar">
         <div class="navbar-nav">
           {% if user.is_authenticated %}
+          <input type="hidden" value="{{user.id}}" id="userId">
           <a class="nav-item nav-link" id="home" href="/">Home</a>
             {% if user.role == 1 %}
-              <a class="nav-item nav-link" id="logout" href="/users">Users</a>
-            {% else %}
-
-            {% endif %}  
-          <a class="nav-item nav-link" id="logout" href="/routes">Routes</a>
-          <a class="nav-item nav-link" id="logout" href="/bookpass">Book Bus Pass</a>  
-          <a class="nav-item nav-link" id="logout" href="/viewpass">View Pass</a>  
+              <a class="nav-item nav-link" id="users" href="/users">Users</a>
+            {% endif %}
+          <a class="nav-item nav-link" id="routes" href="/routes">Routes</a>
+          <a class="nav-item nav-link" id="bookpass" href="/bookpass">Book Bus Pass</a>  
+          {% if user.role == 1 %}
+              <a class="nav-item nav-link" id="addnotification" href="/addnotification">Notify</a>
+          {% endif %}
+          <a class="nav-item nav-link" id="viewpass" href="/viewpass">View Pass</a>  
+          <a class="nav-item nav-link" id="viewmessage" href="/viewmessage/{{user.id}}">Messages
+            <span id="msgCount">
+            <input type="hidden" id="msgCountInput" value="">
+          </a>  
           <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
           {% else %}
           <a class="nav-item nav-link" id="login" href="/login">Login</a>
@@ -85,7 +96,20 @@
 
 {% block javascript %}
 <script type="text/javascript">
-      function deleteNote(noteId) {
+      $(document).ready(function() {
+        checkNotification(true);
+        if($("#userId").val()) {
+            setInterval(function(){
+                checkNotification();
+            },5000);
+        }
+
+        $("#booknow").on('click', function(e) {
+          window.location.href='/bookpass';
+        });
+      });
+
+  function deleteNote(noteId) {
       fetch("/delete-note", {
             method: "POST",
             body: JSON.stringify({ noteId: noteId }),
@@ -113,6 +137,49 @@
         window.location.href = "/routes";
       });
     }
+
+    function renewBusPass(busPassId) {
+      window.location.href = "/bookpass?busPassId="+busPassId;
+    }
+
+    function downloadPass(busPassId) {
+      str=document.getElementById("passDiv" + busPassId).innerHTML + "<br>";
+      newwin=window.open('','printwin','left=100,top=100,width=400,height=400');
+      newwin.document.write('<HTML><HEAD> <link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\"/>');
+      newwin.document.write('<TITLE>Print Page</TITLE>\n');
+      newwin.document.write('<script>\n');
+      newwin.document.write('function chkstate(){\n');
+      newwin.document.write('if(document.readyState=="complete"){\n');
+      newwin.document.write('window.close()\n');
+      newwin.document.write('}\n');
+      newwin.document.write('else{\n');
+      newwin.document.write('setTimeout("chkstate()",2000)\n');
+      newwin.document.write('}\n');
+      newwin.document.write('}\n');
+      newwin.document.write('function print_win(){\n');
+      newwin.document.write('window.print();\n');
+      newwin.document.write('chkstate();\n');
+      newwin.document.write('}\n');
+      newwin.document.write('<\/script>\n');
+      newwin.document.write('</HEAD>\n');
+      newwin.document.write('<BODY onload="print_win()">\n');
+      newwin.document.write(str);
+      newwin.document.close();
+    }
+
+    function checkNotification() {
+      let count = Number($("#msgCountInput").val());
+      fetch("/getNotificationsJson", {
+        method: "POST",
+        body: JSON.stringify({ userid: $("#userId").val() }),
+        }).then(async (data) => {
+          let newCount = Number(await data.json());
+          if(newCount > 0) {
+            $("#msgCount").html("("+newCount+")");
+            $("#msgCountInput").val(newCount);
+          }
+        });
+      }
 </script>
 {% endblock %}
   </body>

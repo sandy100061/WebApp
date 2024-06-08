@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+<title>{% block title %} Notifications {% endblock %}</title>
+{% block content %} 
+<h3 align="center">Notifications</h3>
+    <div style="width: 100%;">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Bus Number</th>
+                <th scope="col">City Name</th>
+                <th scope="col">Message</th>
+                <th scope="col">Added Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for notification in notifications %}
+              <tr>
+                <th scope="row">{{notification.busrouteid}}</th>
+                <td>{{routeDico[notification.busrouteid]}}</td>
+                <td>{{notification.message}}</td>
+                <td>{{notification.addeddate}}</td>   
+              </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

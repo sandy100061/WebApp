@@ -1,39 +1,19 @@
 from flask import Blueprint, render_template, request, flash, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import text
-from .models import Note, User, Busroute, Buspass
+from .models import User, Busroute, Buspass, Notification
 from . import db
 import json
 from datetime import datetime
 from sqlalchemy import desc
+from datetime import date
 
 views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET','POST'])
 @login_required
 def home():
-    if request.method == 'POST':
-        note = Note()
-        note.data = request.form.get('note')
-        note.user_id = current_user.id
-        db.session.add(note)
-        db.session.commit()
-        flash('Note Added succesfully', category="success")     
     return render_template('home.html', user=current_user)
-
-@views.route('/delete-note', methods=['POST'])
-@login_required
-def delete_note():  
-    note = json.loads(request.data) # this function expects a JSON from the INDEX.js file 
-    noteId = note['noteId']
-    note = Note.query.get(noteId)
-    if note:
-        if note.user_id == current_user.id:
-            db.session.delete(note)
-            db.session.commit()
-
-    return jsonify({})
-
 
 @views.route('/users', methods=['GET'])
 @login_required
@@ -174,6 +154,65 @@ def viewpass():
 
 def getTotalDays(fromdate:datetime, todate:datetime):
     return (todate - fromdate).days
+
+@views.route('/addnotification', methods=['GET','POST'])
+@login_required
+def addnotifications():
+    if request.method == 'POST':
+        route = int(request.form.get('destination') or '0')
+        message = request.form.get('message') or ''
+
+        if route == 0:
+            flash('Bus Route is required', category="error")
+        elif message == None or message.strip() == '':
+            flash('Notification Message is required', category="error")
+        else:
+            notification = Notification()  
+            notification.message = message
+            notification.busrouteid = route
+            notification.addeddate = date.today()
+            db.session.add(notification)
+            db.session.commit()
+            flash('Bus Route Notification created succesfully', category="success")   
+
+    routes = Busroute.query.all()
+    notifications = Notification.query.all()
+    routeDico = {}
+    for route in routes:
+        routeDico[route.id] = route.cityname
+    return render_template('addnotification.html', user=current_user, routes = routes, notifications = notifications, routeDico = routeDico)    
+
+@views.route('/getNotificationsJson', methods=['POST'])
+@login_required
+def getNotificationsJson():
+    data = json.loads(request.data) # this function expects a JSON from the INDEX.js file 
+    userId = int(data['userid'])
+    notificationCount = 0
+    # notifications = Notification.query.filter(Notification.addeddate.date() >= date.today()).all()
+    notifications = Notification.query.all()
+    busPassRoutes = Buspass.query.filter(Buspass.userid == userId).all()
+    for busPass in busPassRoutes:
+        for notification in notifications:
+            if busPass.busrouteid == notification.busrouteid and busPass.validity.date() >= date.today():
+                notificationCount += 1
+    return jsonify(notificationCount)    
+
+@views.route('/viewmessage/<int:userId>', methods=['GET'])
+@login_required
+def viewmessage(userId):
+    routes = Busroute.query.all()
+    notifications = []
+    notificationList = Notification.query.all()
+    busPassRoutes = Buspass.query.filter(Buspass.userid == userId).all()
+    for busPass in busPassRoutes:
+        for notification in notificationList:
+            if busPass.busrouteid == notification.busrouteid and busPass.validity.date() >= date.today():
+                notifications.append(notification)
+    routeDico = {}
+    for route in routes:
+        routeDico[route.id] = route.cityname
+    return render_template('viewmessage.html', user=current_user, routes = routes, notifications = notifications, routeDico = routeDico)    
+
 
 # @views.route('/downloadpass', methods=['POST'])
 # @login_required
