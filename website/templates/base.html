@@ -23,6 +23,15 @@
     <title>{% block title %}Home{% endblock %}</title>
   </>
   <body>
+    <!-- Image and text -->
+    <nav class="navbar navbar-light bg-light">
+      <div style="display: flex;">
+        <a class="navbar-brand" href="/">
+          <img src="../static/ucm_logo.png" width="100" height="40" class="d-inline-block align-top" alt="">
+        </a>
+        <div style="font-size: x-large;font-weight: bold;margin-top: 2%;">Bus Management System</div>
+      </div>      
+    </nav>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <button
         class="navbar-toggler"
@@ -77,6 +86,7 @@
     </div>
     {% endif %} {% endfor %} {% endif %} {% endwith %}
 
+    <br>
     <div class="container">{% block content %} {% endblock %}</div>
     <script
       src="https://code.jquery.com/jquery-3.2.1.slim.min.js"

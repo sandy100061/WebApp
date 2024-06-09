@@ -153,7 +153,7 @@ def viewpass():
     return render_template('viewpass.html', user=current_user, busPasses = busPasses, totalDays = totalDays)
 
 def getTotalDays(fromdate:datetime, todate:datetime):
-    return (todate - fromdate).days
+    return (todate - fromdate).days + 1
 
 @views.route('/addnotification', methods=['GET','POST'])
 @login_required

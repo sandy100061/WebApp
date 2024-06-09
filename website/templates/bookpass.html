@@ -37,27 +37,29 @@
           value="{{busPass.mobile}}"
         />
       </div>
-      <div class="form-group">
-        <label for="fromDate">From</label>
-        <input
-          type="date" disabled
-          class="form-control"
-          id="fromDate"
-          name="fromDate"
-          value="{{busPass.fromdate}}"
-          placeholder="Select From Date"
-        />
-      </div>
-      <div class="form-group">
-        <label for="todate">Previous Valid Till</label>
-        <input
-          type="date" disabled
-          class="form-control"
-          id="validity"
-          name="validity"
-          value="{{busPass.validity}}"
-          placeholder="Select To Date"
-        />
+      <div style="display: flex;gap:2%">
+        <div class="form-group">
+          <label for="fromDate">From</label>
+          <input
+            type="date" disabled
+            class="form-control"
+            id="fromDate"
+            name="fromDate"
+            value="{{busPass.fromdate}}"
+            placeholder="Select From Date"
+          />
+        </div>
+        <div class="form-group">
+          <label for="todate">Previous Valid Till</label>
+          <input
+            type="date" disabled
+            class="form-control"
+            id="validity"
+            name="validity"
+            value="{{busPass.validity}}"
+            placeholder="Select To Date"
+          />
+        </div>
       </div>
       <div class="form-group">
         <label for="destinationText">Destination</label>
@@ -90,8 +92,9 @@
           id="renewvalidity"
           name="renewvalidity"
         />
+      </div>
       <div class="form-group">
-        <label for="amount">Amount</label>
+        <label for="amount" style="font-weight: bold;">Amount</label>
         <span id="priceMsg"></span>
         <input
           type="hidden"
@@ -173,7 +176,7 @@
         <input type="hidden" id="categoryType" value="{{user.categoryid}}">
       </div>
       <div class="form-group">
-        <label for="amount">Amount</label>
+        <label for="amount" style="font-weight: bold;">Amount</label>
         <span id="priceMsg"></span>
         <input
           type="hidden"

@@ -12,8 +12,7 @@ def login():
         email = request.form.get('email') or ''
         password = request.form.get('password') or ''
         user = User.query.filter_by(username = email).first()
-        if user != None and user.username == email and user.password == password:            
-            flash('LoggedIn succesfully', category="success")     
+        if user != None and user.username == email and user.password == password:     
             login_user(user, remember=True)
             return redirect(url_for('views.home'))           
         else:
