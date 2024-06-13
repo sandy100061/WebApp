@@ -103,7 +103,6 @@ def bookpass():
             destination = request.form.get('destination')
             routeId = int(request.form.get('destination') or '0')
             amount = float(request.form.get('amount') or '0')
-
             if name == '':
                 flash('FullName is required', category="error")
             elif phone == '':
@@ -114,29 +113,31 @@ def bookpass():
                 flash('FromDate is required', category="error")
             elif todate == '':
                 flash('ToDate is required', category="error")
-            elif destination == 0:
+            elif destination == '0':
                 flash('Destination is required', category="error")
-            busPass = Buspass()  
-            busPass.name = name
-            busPass.email = email
-            busPass.mobile = phone
-            busPass.fromdate = datetime.strptime(fromDate, '%Y-%m-%d').date()
-            busPass.validity = datetime.strptime(todate, '%Y-%m-%d').date()
-            busPass.destination = destination
-            busPass.userid = current_user.id
-            busPass.busrouteid = routeId
-            busPass.amount = amount
-            db.session.add(busPass)
-            db.session.commit()
-            flash('Bus Pass created succesfully', category="success")
-            busPasses = Buspass.query.filter(Buspass.userid == current_user.id).order_by(desc(Buspass.id)).all()
-            destinations = {x.id: x for x in Busroute.query.all()} 
-            totalDays = {}
-            for busPass in busPasses:
-                busPass.destination = destinations[busPass.busrouteid].cityname     
-                totalDays[busPass.id] = getTotalDays(busPass.fromdate, busPass.validity)      
+            else:
+                busPass = Buspass()  
+                busPass.name = name
+                busPass.email = email
+                busPass.mobile = phone
+                busPass.fromdate = datetime.strptime(fromDate, '%Y-%m-%d').date()
+                busPass.validity = datetime.strptime(todate, '%Y-%m-%d').date()
+                busPass.destination = destination
+                busPass.userid = current_user.id
+                busPass.busrouteid = routeId
+                busPass.amount = amount
+                db.session.add(busPass)
+                db.session.commit()
+                flash('Bus Pass created succesfully', category="success")
+                busPasses = Buspass.query.filter(Buspass.userid == current_user.id).order_by(desc(Buspass.id)).all()
+                destinations = {x.id: x for x in Busroute.query.all()} 
+                print(f'test {destinations}')
+                totalDays = {}
+                # for busPass in busPasses:
+                #     busPass.destination = destinations[busPass.busrouteid].cityname     
+                #     totalDays[busPass.id] = getTotalDays(busPass.fromdate, busPass.validity)      
 
-            return render_template('viewpass.html', user=current_user, busPasses = busPasses, totalDays = totalDays)
+                return render_template('viewpass.html', user=current_user, busPasses = busPasses, totalDays = totalDays)
 
     routes = Busroute.query.all()
     return render_template('bookpass.html', user=current_user, routes = routes, busPass = busPass)
