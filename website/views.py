@@ -94,6 +94,14 @@ def bookpass():
                 db.session.execute(sql)
                 db.session.commit()   
                 flash('Bus Pass Renewed succesfully', category="success")  
+                busPasses = Buspass.query.filter(Buspass.userid == current_user.id).order_by(desc(Buspass.id)).all()
+                destinations = {x.id: x for x in Busroute.query.all()} 
+                totalDays = {}
+                for busPass in busPasses:
+                    busPass.destination = destinations[busPass.busrouteid].cityname     
+                    totalDays[busPass.id] = getTotalDays(busPass.fromdate, busPass.validity)  
+                    
+                return render_template('viewpass.html', user=current_user, busPasses = busPasses, totalDays = totalDays)
         else:
             email = request.form.get('email') or ''
             name = request.form.get('name') or ''
@@ -131,11 +139,10 @@ def bookpass():
                 flash('Bus Pass created succesfully', category="success")
                 busPasses = Buspass.query.filter(Buspass.userid == current_user.id).order_by(desc(Buspass.id)).all()
                 destinations = {x.id: x for x in Busroute.query.all()} 
-                print(f'test {destinations}')
                 totalDays = {}
-                # for busPass in busPasses:
-                #     busPass.destination = destinations[busPass.busrouteid].cityname     
-                #     totalDays[busPass.id] = getTotalDays(busPass.fromdate, busPass.validity)      
+                for busPass in busPasses:
+                    busPass.destination = destinations[busPass.busrouteid].cityname     
+                    totalDays[busPass.id] = getTotalDays(busPass.fromdate, busPass.validity)      
 
                 return render_template('viewpass.html', user=current_user, busPasses = busPasses, totalDays = totalDays)
 
