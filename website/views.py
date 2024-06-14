@@ -31,8 +31,11 @@ def routes():
             route = Busroute()
             route.cityname = cityname
             route.price = price 
-            db.session.add(route)
-            db.session.commit()    
+            try:
+                db.session.add(route)
+                db.session.commit()    
+            except:
+                db.session.rollback()
             flash('Bus Route created succesfully', category="success")         
         else:
             flash('Please check City Name and Price', category="error")
@@ -48,8 +51,11 @@ def editbusroute():
     price = route['price'] or ''
     if cityname != '' and price != '':  
         sql = text(f'update busroute set cityname="{cityname}",price={price} where id = {busid}')
-        db.session.execute(sql)
-        db.session.commit()   
+        try:
+            db.session.execute(sql)
+            db.session.commit()   
+        except:
+            db.session.rollback()
         flash(f'Bus Route {busid} updated succesfully', category="success")         
     else:
         flash('Please check City Name and Price', category="error")
@@ -62,8 +68,11 @@ def deleteBusRoute():
     busid = route['busid']
     busroute = Busroute.query.get(busid)
     if busroute:
-       db.session.delete(busroute)
-       db.session.commit()
+       try:
+           db.session.delete(busroute)
+           db.session.commit()
+       except:
+           db.session.rollback()
        flash(f'Bus Route {busid} deleted succesfully', category="success")    
 
     return jsonify({})
@@ -85,15 +94,19 @@ def bookpass():
         if busPassId != None:
             amount = float(request.form.get('amount') or '0')
             busPass = Buspass.query.filter(Buspass.id == busPassId)[0]
+            amount += busPass.amount
             todate = request.form.get('renewvalidity') or ''
             if todate == '':
                 flash('ToDate is required', category="error")
             else:
                 todate = datetime.strptime(todate, '%Y-%m-%d').date()
-                sql = text(f'update buspass set validity="{todate}" where id = {busPassId}')
-                db.session.execute(sql)
-                db.session.commit()   
-                flash('Bus Pass Renewed succesfully', category="success")  
+                sql = text(f'update buspass set validity="{todate}",amount="{amount}" where id = {busPassId}')
+                try:
+                    db.session.execute(sql)
+                    db.session.commit()   
+                    flash('Bus Pass Renewed succesfully', category="success")  
+                except:
+                    db.session.rollback()
                 busPasses = Buspass.query.filter(Buspass.userid == current_user.id).order_by(desc(Buspass.id)).all()
                 destinations = {x.id: x for x in Busroute.query.all()} 
                 totalDays = {}
@@ -134,9 +147,12 @@ def bookpass():
                 busPass.userid = current_user.id
                 busPass.busrouteid = routeId
                 busPass.amount = amount
-                db.session.add(busPass)
-                db.session.commit()
-                flash('Bus Pass created succesfully', category="success")
+                try:
+                    db.session.add(busPass)
+                    db.session.commit()
+                    flash('Bus Pass created succesfully', category="success")
+                except:
+                    db.session.rollback()
                 busPasses = Buspass.query.filter(Buspass.userid == current_user.id).order_by(desc(Buspass.id)).all()
                 destinations = {x.id: x for x in Busroute.query.all()} 
                 totalDays = {}
@@ -179,9 +195,12 @@ def addnotifications():
             notification.message = message
             notification.busrouteid = route
             notification.addeddate = date.today()
-            db.session.add(notification)
-            db.session.commit()
-            flash('Bus Route Notification created succesfully', category="success")   
+            try:
+                db.session.add(notification)
+                db.session.commit()
+                flash('Bus Route Notification created succesfully', category="success")
+            except:
+                db.session.rollback()   
 
     routes = Busroute.query.all()
     notifications = Notification.query.all()

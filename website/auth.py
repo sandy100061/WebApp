@@ -62,10 +62,13 @@ def sign_up():
             new_user.phone = phone
             new_user.role = 2   # User RoleId = 2
             new_user.categoryid = category
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Account created succesfully', category="success")
-            login_user(new_user, remember=True)
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+                flash('Account created succesfully', category="success")
+                login_user(new_user, remember=True)
+            except:
+                db.session.rollback()
             return redirect(url_for('views.home'))
 
     #categories = Category.query.filter(Category.id != 3).all()
